@@ -32,6 +32,8 @@ from zoedepth.models.builder import build_model
 from zoedepth.utils.config import get_config
 from pprint import pprint
 
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 torch.hub.help("intel-isl/MiDaS", "DPT_BEiT_L_384", force_reload=True) 
 

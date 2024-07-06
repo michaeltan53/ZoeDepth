@@ -291,7 +291,8 @@ class DataLoadPreprocess(Dataset):
 
     def __getitem__(self, idx):
         sample_path = self.filenames[idx]
-        focal = float(sample_path.split()[2])
+        # focal = float(sample_path.split()[2])
+        focal = 72.333
         sample = {}
 
         if self.mode == 'train':

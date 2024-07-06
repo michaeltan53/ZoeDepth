@@ -34,6 +34,7 @@ import platform
 ROOT = pathlib.Path(__file__).parent.parent.resolve()
 
 HOME_DIR = os.path.expanduser("~")
+print(HOME_DIR)
 
 COMMON_CONFIG = {
     "save_dir": os.path.expanduser("~/shortcuts/monodepth3_checkpoints"),
@@ -51,14 +52,16 @@ DATASETS_CONFIG = {
         "dataset": "kitti",
         "min_depth": 0.001,
         "max_depth": 80,
-        "data_path": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/raw"),
-        "gt_path": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/gts"),
-        "filenames_file": "./train_test_inputs/kitti_eigen_train_files_with_gt.txt",
+        "data_path": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "gt_path": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        # "filenames_file": "./train_test_inputs/kitti_eigen_train_files_with_gt.txt",
+        "filenames_file": "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2/data/nyu2_test.csv",
         "input_height": 352,
         "input_width": 1216,  # 704
-        "data_path_eval": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/raw"),
-        "gt_path_eval": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/gts"),
-        "filenames_file_eval": "./train_test_inputs/kitti_eigen_test_files_with_gt.txt",
+        "data_path_eval": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "gt_path_eval": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        # "filenames_file_eval": "./train_test_inputs/kitti_eigen_test_files_with_gt.txt",
+        "filenames_file_eval": "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2/data/nyu2_test.csv",
 
         "min_depth_eval": 1e-3,
         "max_depth_eval": 80,
@@ -74,14 +77,14 @@ DATASETS_CONFIG = {
         "dataset": "kitti",
         "min_depth": 0.001,
         "max_depth": 80,
-        "data_path": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/raw"),
-        "gt_path": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/gts"),
-        "filenames_file": "./train_test_inputs/kitti_eigen_train_files_with_gt.txt",
+        "data_path": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "gt_path": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "filenames_file": "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2",
         "input_height": 352,
         "input_width": 1216,
-        "data_path_eval": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/raw"),
-        "gt_path_eval": os.path.join(HOME_DIR, "shortcuts/datasets/kitti/gts"),
-        "filenames_file_eval": "./train_test_inputs/kitti_eigen_test_files_with_gt.txt",
+        "data_path_eval": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "gt_path_eval": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "filenames_file_eval": "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2/data/nyu2_test.csv",
 
         "min_depth_eval": 1e-3,
         "max_depth_eval": 80,
@@ -93,19 +96,23 @@ DATASETS_CONFIG = {
         "eigen_crop": False,
         "use_right": False
     },
+    # directory to modify
+    # starting point
     "nyu": {
         "dataset": "nyu",
         "avoid_boundary": False,
         "min_depth": 1e-3,   # originally 0.1
         "max_depth": 10,
-        "data_path": os.path.join(HOME_DIR, "shortcuts/datasets/nyu_depth_v2/sync/"),
-        "gt_path": os.path.join(HOME_DIR, "shortcuts/datasets/nyu_depth_v2/sync/"),
-        "filenames_file": "./train_test_inputs/nyudepthv2_train_files_with_gt.txt",
+        "data_path": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "gt_path": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        # "filenames_file": "./train_test_inputs/nyudepthv2_train_files_with_gt.txt",
+        "filenames_file": "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2",
         "input_height": 480,
         "input_width": 640,
-        "data_path_eval": os.path.join(HOME_DIR, "shortcuts/datasets/nyu_depth_v2/official_splits/test/"),
-        "gt_path_eval": os.path.join(HOME_DIR, "shortcuts/datasets/nyu_depth_v2/official_splits/test/"),
-        "filenames_file_eval": "./train_test_inputs/nyudepthv2_test_files_with_gt.txt",
+        "data_path_eval": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "gt_path_eval": os.path.join(HOME_DIR, "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2"),
+        "filenames_file_eval": "/home/s_234712236/ZoeDepth/datasets/nyu_depth_v2/data/nyu2_test.csv",
+        # "filenames_file_eval": "./train_test_inputs/nyudepthv2_test_files_with_gt.txt",
         "min_depth_eval": 1e-3,
         "max_depth_eval": 10,
         "min_depth_diff": -10,
@@ -117,6 +124,7 @@ DATASETS_CONFIG = {
         "garg_crop": False,
         "eigen_crop": True
     },
+    # end point
     "ibims": {
         "dataset": "ibims",
         "ibims_root": os.path.join(HOME_DIR, "shortcuts/datasets/ibims/ibims1_core_raw/"),
