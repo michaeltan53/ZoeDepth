@@ -41,9 +41,11 @@ def denormalize(x):
     std = torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).to(x.device)
     return x * std + mean
 
+
 def get_activation(name, bank):
     def hook(model, input, output):
         bank[name] = output
+
     return hook
 
 
@@ -52,13 +54,13 @@ class Resize(object):
     """
 
     def __init__(
-        self,
-        width,
-        height,
-        resize_target=True,
-        keep_aspect_ratio=False,
-        ensure_multiple_of=1,
-        resize_method="lower_bound",
+            self,
+            width,
+            height,
+            resize_target=True,
+            keep_aspect_ratio=False,
+            ensure_multiple_of=1,
+            resize_method="lower_bound",
     ):
         """Init.
         Args:
@@ -172,6 +174,7 @@ class Resize(object):
         width, height = self.get_size(*x.shape[-2:][::-1])
         return nn.functional.interpolate(x, (height, width), mode='bilinear', align_corners=True)
 
+
 class PrepForMidas(object):
     def __init__(self, resize_mode="minimal", keep_aspect_ratio=True, img_size=384, do_resize=True):
         if isinstance(img_size, int):
@@ -179,7 +182,8 @@ class PrepForMidas(object):
         net_h, net_w = img_size
         self.normalization = Normalize(
             mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-        self.resizer = Resize(net_w, net_h, keep_aspect_ratio=keep_aspect_ratio, ensure_multiple_of=32, resize_method=resize_mode) \
+        self.resizer = Resize(net_w, net_h, keep_aspect_ratio=keep_aspect_ratio, ensure_multiple_of=32,
+                              resize_method=resize_mode) \
             if do_resize else nn.Identity()
 
     def __call__(self, x):
@@ -187,7 +191,8 @@ class PrepForMidas(object):
 
 
 class MidasCore(nn.Module):
-    def __init__(self, midas, trainable=False, fetch_features=True, layer_names=('out_conv', 'l4_rn', 'r4', 'r3', 'r2', 'r1'), freeze_bn=False, keep_aspect_ratio=True,
+    def __init__(self, midas, trainable=False, fetch_features=True,
+                 layer_names=('out_conv', 'l4_rn', 'r4', 'r3', 'r2', 'r1'), freeze_bn=False, keep_aspect_ratio=True,
                  img_size=384, **kwargs):
         """Midas Base model used for multi-scale feature extraction.
 
@@ -299,7 +304,7 @@ class MidasCore(nn.Module):
             self.remove_hooks()
         if "out_conv" in self.layer_names:
             self.handles.append(list(midas.scratch.output_conv.children())[
-                                3].register_forward_hook(get_activation("out_conv", self.core_out)))
+                                    3].register_forward_hook(get_activation("out_conv", self.core_out)))
         if "r4" in self.layer_names:
             self.handles.append(midas.scratch.refinenet4.register_forward_hook(
                 get_activation("r4", self.core_out)))
@@ -330,7 +335,8 @@ class MidasCore(nn.Module):
         self.output_channels = MIDAS_SETTINGS[model_type]
 
     @staticmethod
-    def build(midas_model_type="DPT_BEiT_L_384", train_midas=False, use_pretrained_midas=True, fetch_features=False, freeze_bn=True, force_keep_ar=False, force_reload=False, **kwargs):
+    def build(midas_model_type="DPT_BEiT_L_384", train_midas=False, use_pretrained_midas=True, fetch_features=False,
+              freeze_bn=True, force_keep_ar=False, force_reload=False, **kwargs):
         if midas_model_type not in MIDAS_SETTINGS:
             raise ValueError(
                 f"Invalid model type: {midas_model_type}. Must be one of {list(MIDAS_SETTINGS.keys())}")
@@ -367,7 +373,8 @@ class MidasCore(nn.Module):
 
 
 nchannels2models = {
-    tuple([256]*5): ["DPT_BEiT_L_384", "DPT_BEiT_L_512", "DPT_BEiT_B_384", "DPT_SwinV2_L_384", "DPT_SwinV2_B_384", "DPT_SwinV2_T_256", "DPT_Large", "DPT_Hybrid"],
+    tuple([256] * 5): ["DPT_BEiT_L_384", "DPT_BEiT_L_512", "DPT_BEiT_B_384", "DPT_SwinV2_L_384", "DPT_SwinV2_B_384",
+                       "DPT_SwinV2_T_256", "DPT_Large", "DPT_Hybrid"],
     (512, 256, 128, 64, 64): ["MiDaS_small"]
 }
 

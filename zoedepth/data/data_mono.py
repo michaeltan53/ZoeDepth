@@ -102,7 +102,7 @@ class DepthDataLoader(object):
 
         if "diode" in config.dataset:
             self.data = get_diode_loader(
-                config[config.dataset+"_root"], batch_size=1, num_workers=1)
+                config[config.dataset + "_root"], batch_size=1, num_workers=1)
             return
 
         if config.dataset == 'hypersim_test':
@@ -150,7 +150,7 @@ class DepthDataLoader(object):
                                    num_workers=config.workers,
                                    pin_memory=True,
                                    persistent_workers=True,
-                                #    prefetch_factor=2,
+                                   # prefetch_factor=2,
                                    sampler=self.train_sampler)
 
         elif mode == 'online_eval':
@@ -303,9 +303,9 @@ class DataLoadPreprocess(Dataset):
                     self.config.gt_path, remove_leading_slash(sample_path.split()[4]))
             else:
                 image_path = os.path.join(
-                    self.config.data_path, remove_leading_slash(sample_path.split()[0]))
+                    self.config.data_path, remove_leading_slash(sample_path.split(",")[0]))
                 depth_path = os.path.join(
-                    self.config.gt_path, remove_leading_slash(sample_path.split()[1]))
+                    self.config.gt_path, remove_leading_slash(sample_path.split(",")[1]))
 
             image = self.reader.open(image_path)
             depth_gt = self.reader.open(depth_path)
@@ -333,13 +333,16 @@ class DataLoadPreprocess(Dataset):
 
                 # Use reflect padding to fill the blank
                 image = np.array(image)
-                image = np.pad(image, ((crop_params.top, h - crop_params.bottom), (crop_params.left, w - crop_params.right), (0, 0)), mode='reflect')
+                image = np.pad(image, (
+                (crop_params.top, h - crop_params.bottom), (crop_params.left, w - crop_params.right), (0, 0)),
+                               mode='reflect')
                 image = Image.fromarray(image)
 
                 depth_gt = np.array(depth_gt)
-                depth_gt = np.pad(depth_gt, ((crop_params.top, h - crop_params.bottom), (crop_params.left, w - crop_params.right)), 'constant', constant_values=0)
+                depth_gt = np.pad(depth_gt, (
+                (crop_params.top, h - crop_params.bottom), (crop_params.left, w - crop_params.right)), 'constant',
+                                  constant_values=0)
                 depth_gt = Image.fromarray(depth_gt)
-
 
             if self.config.do_random_rotate and (self.config.aug):
                 random_angle = (random.random() - 0.5) * 2 * self.config.degree
@@ -359,7 +362,7 @@ class DataLoadPreprocess(Dataset):
             if self.config.aug and (self.config.random_crop):
                 image, depth_gt = self.random_crop(
                     image, depth_gt, self.config.input_height, self.config.input_width)
-            
+
             if self.config.aug and self.config.random_translate:
                 # print("Random Translation!")
                 image, depth_gt = self.random_translate(image, depth_gt, self.config.max_translation)
@@ -377,21 +380,25 @@ class DataLoadPreprocess(Dataset):
                 data_path = self.config.data_path
 
             image_path = os.path.join(
-                data_path, remove_leading_slash(sample_path.split()[0]))
+                data_path, remove_leading_slash(sample_path.split(",")[0]))
             image = np.asarray(self.reader.open(image_path),
                                dtype=np.float32) / 255.0
 
             if self.mode == 'online_eval':
                 gt_path = self.config.gt_path_eval
                 depth_path = os.path.join(
-                    gt_path, remove_leading_slash(sample_path.split()[1]))
-                has_valid_depth = False
-                try:
-                    depth_gt = self.reader.open(depth_path)
-                    has_valid_depth = True
-                except IOError:
-                    depth_gt = False
-                    # print('Missing gt for {}'.format(image_path))
+                    gt_path, remove_leading_slash(sample_path.split(",")[1]))
+                # print("depth path is:" + depth_path)
+                depth_gt = self.reader.open(depth_path[0:-1])
+                has_valid_depth = True
+
+                # has_valid_depth = False
+                # try:
+                #     depth_gt = self.reader.open(depth_path)
+                #     has_valid_depth = True
+                # except IOError:
+                #     depth_gt = False
+                #     # print('Missing gt for {}'.format(image_path))
 
                 if has_valid_depth:
                     depth_gt = np.asarray(depth_gt, dtype=np.float32)
@@ -412,14 +419,14 @@ class DataLoadPreprocess(Dataset):
                 top_margin = int(height - 352)
                 left_margin = int((width - 1216) / 2)
                 image = image[top_margin:top_margin + 352,
-                              left_margin:left_margin + 1216, :]
+                        left_margin:left_margin + 1216, :]
                 if self.mode == 'online_eval' and has_valid_depth:
                     depth_gt = depth_gt[top_margin:top_margin +
-                                        352, left_margin:left_margin + 1216, :]
+                                                   352, left_margin:left_margin + 1216, :]
 
             if self.mode == 'online_eval':
                 sample = {'image': image, 'depth': depth_gt, 'focal': focal, 'has_valid_depth': has_valid_depth,
-                          'image_path': sample_path.split()[0], 'depth_path': sample_path.split()[1],
+                          'image_path': sample_path.split(",")[0], 'depth_path': sample_path.split(",")[1],
                           'mask': mask}
             else:
                 sample = {'image': image, 'focal': focal}
@@ -434,7 +441,7 @@ class DataLoadPreprocess(Dataset):
 
         sample = self.postprocess(sample)
         sample['dataset'] = self.config.dataset
-        sample = {**sample, 'image_path': sample_path.split()[0], 'depth_path': sample_path.split()[1]}
+        sample = {**sample, 'image_path': sample_path.split(",")[0], 'depth_path': sample_path.split(",")[1]}
 
         return sample
 
@@ -453,7 +460,7 @@ class DataLoadPreprocess(Dataset):
         depth = depth[y:y + height, x:x + width, :]
 
         return img, depth
-    
+
     def random_translate(self, img, depth, max_t=20):
         assert img.shape[0] == depth.shape[0]
         assert img.shape[1] == depth.shape[1]

@@ -33,8 +33,7 @@ from zoedepth.data.data_mono import DepthDataLoader
 from zoedepth.models.builder import build_model
 from zoedepth.utils.arg_utils import parse_unknown
 from zoedepth.utils.config import change_dataset, get_config, ALL_EVAL_DATASETS, ALL_INDOOR, ALL_OUTDOOR
-from zoedepth.utils.misc import (RunningAverageDict, colors, compute_metrics,
-                        count_parameters)
+from zoedepth.utils.misc import (RunningAverageDict, colors, compute_metrics, count_parameters)
 
 
 @torch.no_grad()
@@ -70,14 +69,25 @@ def evaluate(model, test_loader, config, round_vals=True, round_precision=3):
     metrics = RunningAverageDict()
     for i, sample in tqdm(enumerate(test_loader), total=len(test_loader)):
         if 'has_valid_depth' in sample:
-            if not sample['has_valid_depth']:
-                continue
+
+            # uncomment it if necessary
+            '''
+            print("######################## 'has_valid_depth' in sample ########################")
+            # if not sample['has_valid_depth']:
+            #     print("######################## not sample['has_valid_depth'] ########################")
+            #     continue
+        # # print("######################## calculating depth and predict ########################")
+        '''
+
         image, depth = sample['image'], sample['depth']
         image, depth = image.cuda(), depth.cuda()
         depth = depth.squeeze().unsqueeze(0).unsqueeze(0)
         focal = sample.get('focal', torch.Tensor(
             [715.0873]).cuda())  # This magic number (focal) is only used for evaluating BTS model
         pred = infer(model, image, dataset=sample['dataset'][0], focal=focal)
+
+        # print("depth: " + str(depth))
+        # print("pred: " + str(pred))
 
         # Save image, depth, pred for visualization
         if "save_images" in config and config.save_images:
@@ -96,8 +106,6 @@ def evaluate(model, test_loader, config, round_vals=True, round_precision=3):
             Image.fromarray(d).save(os.path.join(config.save_images, f"{i}_depth.png"))
             Image.fromarray(p).save(os.path.join(config.save_images, f"{i}_pred.png"))
 
-
-
         # print(depth.shape, pred.shape)
         metrics.update(compute_metrics(depth, pred, config=config))
 
@@ -105,6 +113,7 @@ def evaluate(model, test_loader, config, round_vals=True, round_precision=3):
         def r(m): return round(m, round_precision)
     else:
         def r(m): return m
+    # metrics = {k: r(v) for k, v in metrics.get_value().items()}
     metrics = {k: r(v) for k, v in metrics.get_value().items()}
     return metrics
 
@@ -124,7 +133,7 @@ def eval_model(model_name, pretrained_resource, dataset='nyu', **kwargs):
 
     # Load default pretrained resource defined in config if not set
     overwrite = {**kwargs, "pretrained_resource": pretrained_resource} if pretrained_resource else kwargs
-    config = get_config(model_name, "eval", dataset, **overwrite)
+    config = get_config(model_name, "eval", dataset, **overwrite) # problem is here
     # config = change_dataset(config, dataset)  # change the dataset
     pprint(config)
     print(f"Evaluating {model_name} on {dataset}...")
@@ -154,7 +163,7 @@ if __name__ == '__main__':
         datasets = args.dataset.split(",")
     else:
         datasets = [args.dataset]
-    
+
     for dataset in datasets:
         eval_model(args.model, pretrained_resource=args.pretrained_resource,
                     dataset=dataset, **overwrite_kwargs)
