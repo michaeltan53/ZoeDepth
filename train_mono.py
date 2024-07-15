@@ -35,6 +35,8 @@ import numpy as np
 from pprint import pprint
 import argparse
 import os
+import glob
+from zoedepth.models.model_io import load_wts
 
 os.environ["PYOPENGL_PLATFORM"] = "egl"
 os.environ["WANDB_START_METHOD"] = "thread"
@@ -57,10 +59,6 @@ def fix_random_seed(seed: int):
 
 
 def load_ckpt(config, model, checkpoint_dir="./checkpoints", ckpt_type="best"):
-    import glob
-    import os
-
-    from zoedepth.models.model_io import load_wts
 
     if hasattr(config, "checkpoint"):
         checkpoint = config.checkpoint
